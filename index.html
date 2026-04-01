@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — Daily Habit Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --surface: #161a23;
+      --surface2: #1e2430;
+      --border: #2a3044;
+      --accent: #6ee7b7;
+      --accent2: #38bdf8;
+      --accent3: #f472b6;
+      --text: #e8eaf2;
+      --muted: #7b8196;
+      --danger: #f87171;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(110,231,183,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(110,231,183,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 400px; height: 400px; background: var(--accent); top: -120px; left: -100px; }
+    .orb-2 { width: 350px; height: 350px; background: var(--accent2); bottom: -100px; right: -80px; }
+    .orb-3 { width: 250px; height: 250px; background: var(--accent3); top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+    .login-card {
+      position: relative;
+      z-index: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 48px 40px 40px;
+      width: 100%;
+      max-width: 420px;
+      margin: 20px;
+      animation: fadeUp 0.5s ease both;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-header { text-align: center; margin-bottom: 36px; }
+
+    .logo-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 56px;
+      background: rgba(110,231,183,0.1);
+      border: 1px solid rgba(110,231,183,0.25);
+      border-radius: 16px;
+      font-size: 26px;
+      margin-bottom: 20px;
+      animation: pulse 3s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(110,231,183,0.2); }
+      50% { box-shadow: 0 0 0 10px rgba(110,231,183,0); }
+    }
+
+    .card-header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    .card-header p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 300;
+      line-height: 1.5;
+    }
+
+    .input-toggle {
+      display: flex;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 4px;
+      margin-bottom: 20px;
+      gap: 4px;
+    }
+    .toggle-btn {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.83rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .toggle-btn.active {
+      background: var(--surface2);
+      color: var(--accent);
+      border: 1px solid rgba(110,231,183,0.2);
+    }
+
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 8px;
+    }
+
+    .input-wrap { position: relative; }
+    .input-wrap .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+    .input-wrap input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 13px 18px 13px 42px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input-wrap input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(110,231,183,0.12);
+    }
+    .input-wrap input::placeholder { color: var(--muted); opacity: 0.6; }
+
+    .pw-toggle {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 2px;
+      transition: color 0.2s;
+    }
+    .pw-toggle:hover { color: var(--accent); }
+
+    .error-msg {
+      font-size: 0.78rem;
+      color: var(--danger);
+      margin-top: 6px;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    .forgot { text-align: right; margin-top: -8px; margin-bottom: 16px; }
+    .forgot a {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .forgot a:hover { color: var(--accent); }
+
+    .btn-login {
+      width: 100%;
+      background: var(--accent);
+      color: #0a1a12;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+      margin-top: 4px;
+      letter-spacing: 0.02em;
+    }
+    .btn-login:hover {
+      background: #86efcc;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(110,231,183,0.3);
+    }
+    .btn-login:active { transform: translateY(0); }
+    .btn-login.loading { opacity: 0.7; pointer-events: none; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .demo-hint {
+      background: rgba(110,231,183,0.06);
+      border: 1px solid rgba(110,231,183,0.15);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.6;
+      text-align: center;
+    }
+    .demo-hint span { color: var(--accent); font-weight: 500; }
+
+    .card-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .card-footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .card-footer a:hover { text-decoration: underline; }
+
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .theme-toggle:hover { border-color: rgba(110,231,183,0.4); }
+    .theme-icon { font-size: 14px; line-height: 1; }
+    .slider-track {
+      width: 36px; height: 20px;
+      background: var(--border);
+      border-radius: 100px;
+      position: relative;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+    .slider-track.light-active { background: #f0c93a; }
+    .slider-thumb {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 14px; height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .slider-track.light-active .slider-thumb { transform: translateX(16px); }
+
+    body.light {
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --surface2: #e8ecf3;
+      --border: #d1d8e8;
+      --text: #1a1e2e;
+      --muted: #6b7280;
+    }
+    body.light .orb { opacity: 0.10; }
+    body.light .card-header h1 {
+      background: linear-gradient(135deg, #1a1e2e 30%, #059669 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+    .shake { animation: shake 0.4s ease; }
+
+    @media (max-width: 480px) {
+      .login-card { padding: 36px 24px 32px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="theme-toggle" onclick="toggleTheme()">
+  <span class="theme-icon">🌙</span>
+  <div class="slider-track" id="sliderTrack"><div class="slider-thumb"></div></div>
+  <span class="theme-icon">☀️</span>
+</div>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="login-card">
+  <div class="card-header">
+    <div class="logo-icon">🌿</div>
+    <h1>Welcome Back</h1>
+    <p>Sign in to continue your streak and keep building great habits.</p>
+  </div>
+
+  <div class="input-toggle">
+    <button class="toggle-btn active" id="emailTab" onclick="switchMode('email')">📧 Email</button>
+    <button class="toggle-btn" id="phoneTab" onclick="switchMode('phone')">📱 Phone</button>
+  </div>
+
+  <div class="field" id="emailField">
+    <label>Email Address</label>
+    <div class="input-wrap">
+      <span class="input-icon">✉️</span>
+      <input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email"/>
+    </div>
+    <div class="error-msg" id="emailError">Please enter a valid email address.</div>
+  </div>
+
+  <div class="field" id="phoneField" style="display:none;">
+    <label>Phone Number</label>
+    <div class="input-wrap">
+      <span class="input-icon">📞</span>
+      <input type="tel" id="phoneInput" placeholder="+1 234 567 8900" autocomplete="tel"/>
+    </div>
+    <div class="error-msg" id="phoneError">Please enter a valid phone number.</div>
+  </div>
+
+  <div class="field">
+    <label>Password</label>
+    <div class="input-wrap">
+      <span class="input-icon">🔒</span>
+      <input type="password" id="passwordInput" placeholder="Enter your password" autocomplete="current-password"/>
+      <button class="pw-toggle" onclick="togglePassword()" id="pwToggleBtn" title="Show/hide password">👁️</button>
+    </div>
+    <div class="error-msg" id="passwordError">Password must be at least 6 characters.</div>
+  </div>
+
+  <div class="forgot"><a href="#">Forgot password?</a></div>
+
+  <button class="btn-login" id="loginBtn" onclick="handleLogin()">Sign In →</button>
+
+  <div class="divider">or use demo credentials</div>
+
+  <div class="demo-hint">
+    Use any email & password with <span>6+ characters</span><br>to access the habit tracker.
+  </div>
+
+  <div class="card-footer">
+    Don't have an account? <a href="#">Sign up free</a>
+  </div>
+</div>
+
+<script>
+  let mode = 'email';
+  let pwVisible = false;
+
+  function switchMode(m) {
+    mode = m;
+    const emailField = document.getElementById('emailField');
+    const phoneField = document.getElementById('phoneField');
+    const emailTab   = document.getElementById('emailTab');
+    const phoneTab   = document.getElementById('phoneTab');
+
+    if (m === 'email') {
+      emailField.style.display = 'block';
+      phoneField.style.display = 'none';
+      emailTab.classList.add('active');
+      phoneTab.classList.remove('active');
+    } else {
+      emailField.style.display = 'none';
+      phoneField.style.display = 'block';
+      phoneTab.classList.add('active');
+      emailTab.classList.remove('active');
+    }
+    clearErrors();
+  }
+
+  function togglePassword() {
+    pwVisible = !pwVisible;
+    const input = document.getElementById('passwordInput');
+    const btn   = document.getElementById('pwToggleBtn');
+    input.type  = pwVisible ? 'text' : 'password';
+    btn.textContent = pwVisible ? '🙈' : '👁️';
+  }
+
+  function clearErrors() {
+    document.querySelectorAll('.error-msg').forEach(e => e.classList.remove('show'));
+  }
+
+  function handleLogin() {
+    clearErrors();
+    let valid = true;
+
+    if (mode === 'email') {
+      const email = document.getElementById('emailInput').value.trim();
+      const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailReg.test(email)) {
+        document.getElementById('emailError').classList.add('show');
+        document.getElementById('emailInput').closest('.input-wrap').parentElement.classList.add('shake');
+        setTimeout(() => document.getElementById('emailInput').closest('.input-wrap').parentElement.classList.remove('shake'), 400);
+        valid = false;
+      }
+    } else {
+      const phone = document.getElementById('phoneInput').value.trim();
+      const phoneReg = /^[\+]?[\d\s\-\(\)]{7,15}$/;
+      if (!phoneReg.test(phone)) {
+        document.getElementById('phoneError').classList.add('show');
+        document.getElementById('phoneInput').closest('.input-wrap').parentElement.classList.add('shake');
+        setTimeout(() => document.getElementById('phoneInput').closest('.input-wrap').parentElement.classList.remove('shake'), 400);
+        valid = false;
+      }
+    }
+
+    const password = document.getElementById('passwordInput').value;
+    if (password.length < 6) {
+      document.getElementById('passwordError').classList.add('show');
+      document.getElementById('passwordInput').closest('.input-wrap').parentElement.classList.add('shake');
+      setTimeout(() => document.getElementById('passwordInput').closest('.input-wrap').parentElement.classList.remove('shake'), 400);
+      valid = false;
+    }
+
+    if (!valid) return;
+
+    const btn = document.getElementById('loginBtn');
+    btn.classList.add('loading');
+    btn.textContent = 'Signing in…';
+
+    setTimeout(() => {
+      window.location.href = 'habit.html';
+    }, 1200);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleLogin();
+  });
+
+  function toggleTheme() {
+    const isLight = document.body.classList.toggle('light');
+    document.getElementById('sliderTrack').classList.toggle('light-active', isLight);
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  }
+  if (localStorage.getItem('theme') === 'light') {
+    document.body.classList.add('light');
+    document.getElementById('sliderTrack').classList.add('light-active');
+  }
+</script>
+</body>
+</html>
